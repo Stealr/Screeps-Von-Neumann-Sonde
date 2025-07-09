@@ -1,8 +1,8 @@
 const FactorySystem = require('system.Factory');
-const CheckUnitsSystem = require('system.CheckUnits');
+const CheckCreepsSystem = require('system.CheckCreeps');
 const CreepsSystem = require('system.Creeps');
 
-const systems = [CheckUnitsSystem, FactorySystem];
+const systems = [CheckCreepsSystem, FactorySystem];
 
 class RoomCore {
     constructor(room) {
@@ -21,7 +21,7 @@ class RoomCore {
         factory.run();
 
 
-        let checker = new CheckUnitsSystem(factory);
+        let checker = new CheckCreepsSystem(this.room.name, factory);
         checker.run();
 
 
