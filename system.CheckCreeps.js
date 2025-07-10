@@ -21,14 +21,22 @@ class CheckUnitsSystem {
         const countCreeps = Object.keys(Game.creeps).length;
 
         if (countCreeps != this.reqNum) {
-            this.defineCountingCreeps();
-
             for (let role in this.reqCreeps) {
-                if (this.reqCreeps[role] !== this.aliveCreeps[role]) {
-                    const expectedCreeps = 0;
+                if (this.aliveCreeps[role] + this.expectedCreeps[role] !== this.reqCreeps[role]) {
+                    // проверка есть ли живые крипы или ожидаемые поставки
+                    const isAliveCreeps = Object.entries(this.aliveCreeps).length !== 0;
+                    const isExpectedCreeps = Object.entries(this.expectedCreeps).length !== 0;
 
-                    //! написать логику - добавлять заказ * кол-во недостающих крипов
-                    this.factory.addOrder(role);
+                    let lackCreeps;
+                    if (isAliveCreeps && isExpectedCreeps) {
+                        lackCreeps = Math.abs(this.expectedCreeps[role] - this.aliveCreeps[role]);
+                    } else if(isAliveCreeps) {
+                        lackCreeps = Math.abs(this.reqCreeps[role] - this.aliveCreeps[role]);
+                    } else {
+                        lackCreeps = this.reqCreeps[role];
+                    }
+
+                    this.factory.addOrder(Array.from({length: lackCreeps}, () => role));
                 }
             }
         }
