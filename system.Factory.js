@@ -10,28 +10,27 @@ class FactorySystem {
     }
 
     run() {
-        // console.log('---- factory ----');
-        // console.log('list orders: ', this.listTasks);
+
     }
 
     /**
      * Description
-     * @param {list} orders '[harvester, harvester]'
+     * @param {list} task '[harvester, harvester]'
      */
-    addOrder(orders) {
+    addTask(task) {
         // формирование id
-        const processedTasks = orders.map((req) => {
+        const processedTasks = task.map((req) => {
             const typeCreep = req[0].toUpperCase();
             const creepNumRoom = Memory.rooms[this.roomName].creepId;
             const creepNumGlobal = Memory.global.creepId;
-            const idOrder = `${this.roomName}${typeCreep}${creepNumRoom}-${creepNumGlobal}`;
+            const idCreep = `${this.roomName}${typeCreep}${creepNumRoom}-${creepNumGlobal}`;
             
             // повышение счетчика
             Memory.rooms[this.roomName].creepId += 1;
             Memory.global.creepId += 1;
 
-            const newOrder = { id: idOrder, name: req };
-            return newOrder;
+            const newTask = { id: idCreep, name: req };
+            return newTask;
         });
 
         // добавление заказа в список
