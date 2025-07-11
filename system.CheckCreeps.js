@@ -41,7 +41,7 @@ class CheckUnitsSystem {
                         lackCreeps = this.reqCreeps[role];
                     }
 
-                    this.factory.addOrder(Array.from({ length: lackCreeps }, () => role));
+                    this.factory.createCreep(Array.from({ length: lackCreeps }, () => role));
                 }
             }
         }
