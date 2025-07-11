@@ -9,13 +9,13 @@ const memoryInit = {
         Memory.global = {};
 
         // порядковый номер всех крипов
-        Memory.global.creepId = 1;
+        Memory.global.creepId = 0;
 
         // память для комнаты
         Memory.rooms[roomName] = {
-            creepId: 1,
+            creepId: 0,
             factory: {
-                listOrders: [],
+                listTasks: [],
             },
         };
 

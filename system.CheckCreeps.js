@@ -66,10 +66,10 @@ class CheckUnitsSystem {
      * Description - определяет объект ожидаемых крипов по ролям
      */
     defineExpectedCreeps() {
-        const listOrders = Memory.rooms[this.roomName].factory.listOrders;
+        const listTasks = Memory.rooms[this.roomName].factory.listTasks;
 
-        for (let order in listOrders) {
-            const role = listOrders[order].name;
+        for (let order in listTasks) {
+            const role = listTasks[order].name;
 
             if (role in this.expectedCreeps) {
                 this.expectedCreeps[role] += 1;
