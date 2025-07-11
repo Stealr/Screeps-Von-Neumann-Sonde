@@ -22,21 +22,26 @@ class CheckUnitsSystem {
 
         if (countCreeps != this.reqNum) {
             for (let role in this.reqCreeps) {
-                if (this.aliveCreeps[role] + this.expectedCreeps[role] !== this.reqCreeps[role]) {
+                if (
+                    (this.aliveCreeps?.[role] ?? 0) + (this.expectedCreeps?.[role] ?? 0) <
+                    this.reqCreeps[role]
+                ) {
                     // проверка есть ли живые крипы или ожидаемые поставки
-                    const isAliveCreeps = Object.entries(this.aliveCreeps).length !== 0;
-                    const isExpectedCreeps = Object.entries(this.expectedCreeps).length !== 0;
+                    const isAliveCreeps = (this.aliveCreeps?.[role] ?? 0) !== 0;
+                    const isExpectedCreeps = (this.expectedCreeps?.[role] ?? 0) !== 0;
 
                     let lackCreeps;
                     if (isAliveCreeps && isExpectedCreeps) {
-                        lackCreeps = Math.abs(this.expectedCreeps[role] - this.aliveCreeps[role]);
-                    } else if(isAliveCreeps) {
-                        lackCreeps = Math.abs(this.reqCreeps[role] - this.aliveCreeps[role]);
+                        lackCreeps = this.reqCreeps[role] - (this.expectedCreeps[role] + this.aliveCreeps[role]);
+                    } else if (isAliveCreeps === true && isExpectedCreeps === false) {
+                        lackCreeps = this.reqCreeps[role] - this.aliveCreeps[role];
+                    } else if (isAliveCreeps === false && isExpectedCreeps && true) {
+                        lackCreeps = this.reqCreeps[role] - this.expectedCreeps[role];
                     } else {
                         lackCreeps = this.reqCreeps[role];
                     }
 
-                    this.factory.addOrder(Array.from({length: lackCreeps}, () => role));
+                    this.factory.addOrder(Array.from({ length: lackCreeps }, () => role));
                 }
             }
         }
@@ -64,7 +69,7 @@ class CheckUnitsSystem {
         const listOrders = Memory.rooms[this.roomName].factory.listOrders;
 
         for (let order in listOrders) {
-            const role = order.name;
+            const role = listOrders[order].name;
 
             if (role in this.expectedCreeps) {
                 this.expectedCreeps[role] += 1;
