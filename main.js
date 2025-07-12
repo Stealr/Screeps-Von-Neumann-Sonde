@@ -1,4 +1,3 @@
-const roleHarvester = require('role.Bob_harvester');
 const memoryInit = require('memoryInit');
 const RoomCore = require('RoomCore');
 

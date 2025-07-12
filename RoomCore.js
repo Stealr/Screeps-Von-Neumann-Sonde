@@ -18,6 +18,9 @@ class RoomCore {
         let checker = new CheckCreepsSystem(this.room.name, factory);
         checker.run();
 
+        let creeps = new CreepsSystem(this.room.name);
+        creeps.run();
+
 
         // for (let i = 0; i < systems.length; i++) {
         //     let sys = new systems[i];

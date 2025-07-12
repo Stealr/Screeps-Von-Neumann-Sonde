@@ -1,5 +1,5 @@
-let roleHarvester = {
-    run: (creep, spawn) => {
+let roles = {
+    harvester: (creep, spawn) => {
         const source = creep.pos.findClosestByPath(FIND_SOURCES);
         
         if (creep.store.getFreeCapacity() > 0) {
@@ -14,4 +14,4 @@ let roleHarvester = {
     },
 };
 
-module.exports = roleHarvester;
+module.exports = roles;
