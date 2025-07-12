@@ -3,7 +3,7 @@ class CheckUnitsSystem {
         this.factory = FactorySystem;
         this.roomName = roomName;
 
-        this.reqCreeps = { harvester: 100, builder: 0, carrier: 0 }; // необходимые крипы
+        this.reqCreeps = Memory.rooms[roomName].reqCreeps; // кол-во необходимых крипов
         this.aliveCreeps = {}; // живые крипы
         this.expectedCreeps = {}; // ожидаемое пополнение крипов
 

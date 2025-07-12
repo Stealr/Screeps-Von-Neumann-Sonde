@@ -14,6 +14,7 @@ const memoryInit = {
         // память для комнаты
         Memory.rooms[roomName] = {
             creepId: 0,
+            reqCreeps: { harvester: 0, builder: 0, carrier: 0 }, // необходимые крипы
             factory: {
                 listTasks: [],
             },

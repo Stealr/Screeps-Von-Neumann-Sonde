@@ -8,15 +8,15 @@ class CreepsSystem {
         this.creepsHarvester = Object.values(Game.creeps).filter(
             (creep) => creep.memory.role === 'harvester'
         );
-        // this.creepsCarrier = Object.values(Game.creeps).filter(
-        //     (creep) => creep.memory.role === 'carrier'
-        // );
+        this.creepsCarrier = Object.values(Game.creeps).filter(
+            (creep) => creep.memory.role === 'carrier'
+        );
 
-        // this.creepsBuilder = Object.values(Game.creeps).filter(
-        //     (creep) => creep.memory.role === 'builder'
-        // );
+        this.creepsBuilder = Object.values(Game.creeps).filter(
+            (creep) => creep.memory.role === 'builder'
+        );
 
-        this.allCreeps = { harvester: this.creepsHarvester };
+        this.allCreeps = { harvester: this.creepsHarvester, carrier: this.creepsCarrier, builder: this.creepsBuilder};
     }
 
     run() {
@@ -26,7 +26,6 @@ class CreepsSystem {
                 roles[roleIndex](creep, this.spawns[0]);
             }
         }
-        // console.log(this.creepsHarvester);
     }
 }
 
