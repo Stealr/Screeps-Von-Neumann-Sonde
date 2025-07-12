@@ -11,12 +11,6 @@ class RoomCore {
     }
 
     test() {
-        // console.log(`room: ${this.room}`, `spawn: ${this.spawn}`)
-        console.log();
-        console.log('===========================');
-        console.log('==== Отчет по системам ====');
-        console.log('===========================');
-
         let factory = new FactorySystem(this.room.name);
         factory.run();
 
@@ -29,7 +23,6 @@ class RoomCore {
         //     let sys = new systems[i];
         //     sys.run();
         // }
-        console.log('===========================');
     }
 }
 

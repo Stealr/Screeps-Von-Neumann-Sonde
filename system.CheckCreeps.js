@@ -15,9 +15,6 @@ class CheckUnitsSystem {
     }
 
     run() {
-        console.log();
-        console.log('---- Checker ----');
-
         const countCreeps = Object.keys(Game.creeps).length;
 
         if (countCreeps != this.reqNum) {
