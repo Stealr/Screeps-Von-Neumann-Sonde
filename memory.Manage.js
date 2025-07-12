@@ -21,6 +21,16 @@ const memoryInit = {
 
         Memory.flags.initiated = true;
     },
+
+    clear: () => {
+        const listCreeps = Memory.creeps;
+
+        for (const name in listCreeps) {
+            if (!(name in Game.creeps)) {
+                delete Memory.creeps[name];
+            }
+        }
+    },
 };
 
 module.exports = memoryInit;

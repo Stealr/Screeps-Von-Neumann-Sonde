@@ -1,10 +1,11 @@
-const memoryInit = require('memoryInit');
+const memoryManage = require('memory.Manage');
 const RoomCore = require('RoomCore');
 
 const spawn = Game.spawns['Home'];
 
 module.exports.loop = function () {
-    memoryInit.init();
+    memoryManage.init();
+    memoryManage.clear();
 
     // const room = Object.entries(Game.rooms)
     // console.log(Object.entries(room[0][1]));
