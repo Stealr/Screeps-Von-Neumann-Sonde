@@ -1,6 +1,7 @@
 const FactorySystem = require('system.Factory');
 const CheckCreepsSystem = require('system.CheckCreeps');
 const CreepsSystem = require('system.Creeps');
+const ScannerSystem = require('system.Scanner');
 
 class RoomCore {
     systems = [CheckCreepsSystem, FactorySystem];
@@ -11,6 +12,9 @@ class RoomCore {
     }
 
     test() {
+        let scanner = new ScannerSystem(this.room.name)
+        scanner.scanEnergy();
+
         let factory = new FactorySystem(this.room.name);
         factory.run();
 
