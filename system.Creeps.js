@@ -18,15 +18,14 @@ class CreepsSystem {
     }
 
     run() {
+        // harvester
         for (const creep of this.creepsHarvester) {
             const releaseSource = (idSource) => {
                 Memory.rooms[this.roomName].resources.energySources[idSource].current -= 1;
             };
 
             const closestSource = this.findClosestSource(creep);
-            const storage = this.findStorage();
-
-            if (closestSource && storage) {
+            if (closestSource || creep.memory.target) {
                 if (!creep.memory.target) {
                     creep.memory.target = closestSource.id;
                     Memory.rooms[this.roomName].resources.energySources[
@@ -34,7 +33,33 @@ class CreepsSystem {
                     ].current += 1;
                 }
 
+                const storage = this.findStorage();
+                        
                 roles.harvester(creep, storage, releaseSource);
+            }
+        }
+
+        // builder
+        for (const creep of this.creepsBuilder) {
+            const target = Game.rooms[this.roomName].find(FIND_CONSTRUCTION_SITES)[0];
+
+            const listStorage = Memory.rooms[this.roomName].storages;
+            let replenishment;
+            if (listStorage.SLC.length > 0) {
+                console.log('Take from SLC');
+            } else if (listStorage.TS.length > 0) {
+                console.log('Take from TS');
+            } else {
+                replenishment =
+                    Game.spawns[
+                        listStorage.FS.find((storage) => {
+                            return Game.spawns[storage].store.getUsedCapacity(RESOURCE_ENERGY) > 10;
+                        })
+                    ];
+            }
+
+            if (target) {
+                roles.builder(creep, target, replenishment);
             }
         }
     }

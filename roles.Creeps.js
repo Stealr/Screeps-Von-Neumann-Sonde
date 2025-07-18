@@ -17,6 +17,7 @@ let roles = {
                 creep.memory.target = null;
             }
 
+            //! написать логику, если не найден свободный storage
             if (creep.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(storage);
             }
@@ -30,10 +31,11 @@ let roles = {
      */
     builder: (creep, target, replenishment) => {
         if (creep.build(target) === ERR_NOT_ENOUGH_RESOURCES) {
+            //! написать логику, если не найден replenishment
             if (creep.withdraw(replenishment, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(replenishment);
             }
-        } else if (ERR_NOT_IN_RANGE) {
+        } else if (creep.build(target) === ERR_NOT_IN_RANGE) {
             creep.moveTo(target);
         }
     },

@@ -15,7 +15,7 @@ const memoryInit = {
         Memory.rooms[roomName] = {
             creepId: 0,
             //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
-            reqCreeps: { harvester: 2, builder: 0, carrier: 0 }, // необходимые крипы
+            reqCreeps: { harvester: 7, builder: 4, carrier: 0 }, // необходимые крипы
             factory: {
                 listTasks: [],
             },
