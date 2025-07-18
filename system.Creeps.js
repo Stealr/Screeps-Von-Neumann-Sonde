@@ -15,17 +15,64 @@ class CreepsSystem {
         this.creepsBuilder = Object.values(Game.creeps).filter(
             (creep) => creep.memory.role === 'builder'
         );
-
-        this.allCreeps = { harvester: this.creepsHarvester, carrier: this.creepsCarrier, builder: this.creepsBuilder};
     }
 
     run() {
-        for (const roleIndex in this.allCreeps) {
-            for (const creepIndex in this.allCreeps[roleIndex]) {
-                const creep = this.allCreeps[roleIndex][creepIndex];
-                roles[roleIndex](creep, this.spawns[0]);
+        for (const creep of this.creepsHarvester) {
+            const releaseSource = (idSource) => {
+                Memory.rooms[this.roomName].resources.energySources[idSource].current -= 1;
+            };
+
+            const closestSource = this.findClosestSource(creep);
+            const storage = this.findStorage();
+
+            if (closestSource && storage) {
+                if (!creep.memory.target) {
+                    creep.memory.target = closestSource.id;
+                    Memory.rooms[this.roomName].resources.energySources[
+                        closestSource.id
+                    ].current += 1;
+                }
+
+                roles.harvester(creep, storage, releaseSource);
             }
         }
+    }
+
+    findClosestSource(creep) {
+        const energyList = Memory.rooms[this.roomName].resources.energySources;
+
+        const actualSources = Game.rooms[this.roomName].find(FIND_SOURCES);
+
+        const availableSources = actualSources.filter((source) => {
+            const sourceData = energyList[source.id];
+            return sourceData && sourceData.current < sourceData.max;
+        });
+
+        let closestSource = null;
+        if (availableSources.length > 0) {
+            closestSource = creep.pos.findClosestByRange(availableSources);
+        }
+
+        return closestSource;
+    }
+
+    findStorage() {
+        const listStorage = Memory.rooms[this.roomName].storages;
+
+        let storageTarget = null;
+        if (listStorage.TS.length > 0) {
+            storageTarget = null;
+        } else {
+            storageTarget =
+                Game.spawns[
+                    listStorage.FS.find((storage) => {
+                        return Game.spawns[storage].store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                    })
+                ];
+        }
+
+        return storageTarget;
     }
 }
 

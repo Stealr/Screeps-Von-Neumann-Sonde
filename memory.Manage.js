@@ -14,9 +14,19 @@ const memoryInit = {
         // память для комнаты
         Memory.rooms[roomName] = {
             creepId: 0,
-            reqCreeps: { harvester: 0, builder: 0, carrier: 0 }, // необходимые крипы
+            //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
+            reqCreeps: { harvester: 2, builder: 0, carrier: 0 }, // необходимые крипы
             factory: {
                 listTasks: [],
+            },
+            // складская система, хранятся ключи к объектам
+            storages: {
+                SLC: [],
+                TS: [],
+                FS: [Object.keys(Game.spawns)[0]],
+            },
+            resources: {
+                energySources: {},
             },
         };
 

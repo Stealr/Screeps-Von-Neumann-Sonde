@@ -1,8 +1,6 @@
 const memoryManage = require('memory.Manage');
 const RoomCore = require('RoomCore');
 
-const spawn = Game.spawns['Home'];
-
 module.exports.loop = function () {
     memoryManage.init();
     memoryManage.clear();

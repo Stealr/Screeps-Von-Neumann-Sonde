@@ -26,7 +26,7 @@ class ScannerSystem {
                 }
             }
 
-            Memory.rooms[this.roomName].energySources[energyList[name].id] = {
+            Memory.rooms[this.roomName].resources.energySources[energyList[name].id] = {
                 current: 0,
                 max: availableCells,
             };
