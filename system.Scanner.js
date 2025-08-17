@@ -1,10 +1,13 @@
+const MemoryManager = require('memory.Manage');
+
 class ScannerSystem {
     constructor(roomName) {
         this.roomName = roomName;
+        this.memory = new MemoryManager(this.roomName);
     }
 
     scanEnergy() {
-        if (Memory.rooms[this.roomName]?.flags?.scanned) return;
+        if (this.memory.getScannedFlag()) return;
 
         const energyList = Game.rooms[this.roomName].find(FIND_SOURCES);
         let TotalAvailableCells = 0;

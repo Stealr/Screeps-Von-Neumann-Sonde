@@ -1,8 +1,10 @@
 const roles = require('roles.Creeps');
+const MemoryManager = require('memory.Manage');
 
 class CreepsSystem {
     constructor(roomName) {
         this.roomName = roomName;
+        this.memory = new MemoryManager(this.roomName);
         this.spawns = Game.rooms[roomName].find(FIND_MY_SPAWNS);
 
         this.creepsHarvester = Object.values(Game.creeps).filter(
@@ -30,16 +32,14 @@ class CreepsSystem {
 
         for (const creep of this.creepsHarvester) {
             const releaseSource = (idSource) => {
-                Memory.rooms[this.roomName].resources.energySources[idSource].current -= 1;
+                this.memory.releaseEnergySources(idSource);
             };
 
             const closestSource = this.findClosestSource(creep);
             if (closestSource || creep.memory.target) {
                 if (!creep.memory.target) {
                     creep.memory.target = closestSource.id;
-                    Memory.rooms[this.roomName].resources.energySources[
-                        closestSource.id
-                    ].current += 1;
+                    this.memory.occupyEnergySources(closestSource.id);
                 }
 
                 roles.harvester(creep, storage, releaseSource);
@@ -48,12 +48,13 @@ class CreepsSystem {
     }
 
     builderCycleLife() {
+        const listStorage = this.memory.getStorageList()
+
         for (const creep of this.creepsBuilder) {
             // цель для строительства
             const target = Game.rooms[this.roomName].find(FIND_CONSTRUCTION_SITES)[0];
 
             // склад для пополнения припасов
-            const listStorage = Memory.rooms[this.roomName].storages;
             let replenishment;
             if (listStorage.TS.length > 0) {
                 console.log('Take from TS');
@@ -75,10 +76,10 @@ class CreepsSystem {
     }
 
     upgraderCycleLife() {
-        for (const creep of this.creepsUpgraders) {
+        const listStorage = this.memory.getStorageList()
 
+        for (const creep of this.creepsUpgraders) {
             // склад для пополнения припасов
-            const listStorage = Memory.rooms[this.roomName].storages;
             let replenishment;
             if (listStorage.SLC.length > 0) {
                 console.log('Take from SLC');
@@ -98,7 +99,7 @@ class CreepsSystem {
     }
 
     findClosestSource(creep) {
-        const energyList = Memory.rooms[this.roomName].resources.energySources;
+        const energyList = this.memory.getEnergySources();
 
         const actualSources = Game.rooms[this.roomName].find(FIND_SOURCES);
 
@@ -116,7 +117,7 @@ class CreepsSystem {
     }
 
     findStorage() {
-        const listStorage = Memory.rooms[this.roomName].storages;
+        const listStorage = this.memory.getStorageList()
 
         let storageTarget = null;
         if (listStorage.TS.length > 0) {

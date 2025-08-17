@@ -1,5 +1,10 @@
-const memoryInit = {
-    initMemGame: () => {
+class MemoryManager {
+    constructor(roomName) {
+        this.roomName = roomName;
+    }
+
+    // --- INIT ---
+    initMemGame() {
         if (Memory.flags?.initiatedMem) return;
 
         console.log('Инициализация памяти игры');
@@ -10,18 +15,23 @@ const memoryInit = {
         };
 
         Memory.flags.initiatedMem = true;
-    },
+    }
 
-    initMemRoom: (roomName, scannedData) => {
-        if (Memory.rooms[roomName]?.flags?.initiatedMem) return;
+    initMemRoom(scannedData) {
+        if (Memory.rooms[this.roomName]?.flags?.initiatedMem) return;
 
         console.log('Инициализация памяти комнаты');
 
         // память для комнаты
-        Memory.rooms[roomName] = {
+        Memory.rooms[this.roomName] = {
             creepId: 0,
             //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
-            reqCreeps: { harvester: scannedData.TotalAvailableCells, builder: 1, carrier: 0, upgrader: 0 }, // необходимые крипы
+            reqCreeps: {
+                harvester: scannedData.TotalAvailableCells,
+                builder: 1,
+                upgrader: 0,
+                carrier: 0,
+            }, // необходимые крипы
             factory: {
                 listTasks: [],
             },
@@ -32,16 +42,79 @@ const memoryInit = {
                 FS: [Object.keys(Game.spawns)[0]],
             },
             resources: {
-                energySources: {...scannedData.availableCells},
+                energySources: { ...scannedData.availableCells },
             },
             flags: {
                 initiatedMem: true,
                 scanned: true,
             },
         };
-    },
+    }
 
-    clear: () => {
+    // --- CREEPS ---
+    getRequiredCreeps() {
+        return Memory.rooms[this.roomName]?.reqCreeps;
+    }
+
+    getCreepIdCounter() {
+        return Memory.rooms[this.roomName]?.creepId;
+    }
+
+    getGlobalCreepIdCounter() {
+        return Memory.global.creepId;
+    }
+
+    incrementCreepIdCounter() {
+        Memory.rooms[this.roomName].creepId += 1;
+        Memory.global.creepId += 1;
+    }
+
+    occupyEnergySources(idSource) {
+        Memory.rooms[this.roomName].resources.energySources[idSource].current += 1;
+    }
+
+    releaseEnergySources(idSource) {
+        Memory.rooms[this.roomName].resources.energySources[idSource].current -= 1;
+    }
+
+    getStorageList() {
+        return Memory.rooms[this.roomName].storages;
+    }
+
+    // --- Factory ---
+    getFactoryTasks() {
+        return Memory.rooms[this.roomName]?.factory.listTasks;
+    }
+
+    addTask(task) {
+        Memory.rooms[this.roomName].factory.listTasks.push(task);
+    }
+
+    addTasks(tasks) {
+        Memory.rooms[this.roomName].factory.listTasks.push(...tasks);
+    }
+
+    removeFirstTask() {
+        return Memory.rooms[this.roomName].factory.listTasks.shift();
+    }
+
+    // --- Resources ---
+    getEnergySources() {
+        return Memory.rooms[this.roomName]?.resources.energySources;
+    }
+
+    updateEnergySource(sourceId, current) {
+        if (Memory.rooms[this.roomName]?.resources.energySources[sourceId]) {
+            Memory.rooms[this.roomName].resources.energySources[sourceId].current = current;
+        }
+    }
+
+    // another
+    getScannedFlag() {
+        return Memory.rooms[this.roomName]?.flags?.scanned
+    }
+
+    clear() {
         const listCreeps = Memory.creeps;
 
         for (const name in listCreeps) {
@@ -64,7 +137,7 @@ const memoryInit = {
                 delete Memory.creeps[name];
             }
         }
-    },
-};
+    }
+}
 
-module.exports = memoryInit;
+module.exports = MemoryManager;

@@ -1,9 +1,12 @@
+const MemoryManager = require('memory.Manage');
+
 class CheckUnitsSystem {
     constructor(roomName, FactorySystem) {
         this.factory = FactorySystem;
         this.roomName = roomName;
+        this.memory = new MemoryManager(this.roomName);
 
-        this.reqCreeps = Memory.rooms[roomName].reqCreeps; // кол-во необходимых крипов
+        this.reqCreeps = this.memory.getRequiredCreeps(); // кол-во необходимых крипов
         this.aliveCreeps = {}; // живые крипы
         this.expectedCreeps = {}; // ожидаемое пополнение крипов
 
@@ -63,7 +66,7 @@ class CheckUnitsSystem {
      * Description - определяет объект ожидаемых крипов по ролям
      */
     defineExpectedCreeps() {
-        const listTasks = Memory.rooms[this.roomName].factory.listTasks;
+        const listTasks = this.memory.getFactoryTasks()
 
         for (let order in listTasks) {
             const role = listTasks[order].name;

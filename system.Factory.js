@@ -2,15 +2,16 @@
 
 // id крипа: {roomName}{type}{creepNumRoom}-{creepNumGlobal}_{Bob}
 // пример: W1R1H3-14_Bob
-
+const MemoryManager = require('memory.Manage');
 const templateCreeps = require('template.Creeps');
 
 class FactorySystem {
     constructor(roomName) {
         this.roomName = roomName;
+        this.memory = new MemoryManager(this.roomName);
 
         this.spawns = Game.rooms[roomName].find(FIND_MY_SPAWNS);
-        this.listTasks = Memory.rooms[roomName].factory.listTasks;
+        this.listTasks = this.memory.getFactoryTasks();
     }
 
     run() {
@@ -49,13 +50,12 @@ class FactorySystem {
         // формирование id
         const processedTasks = task.map((req) => {
             const typeCreep = req[0].toUpperCase();
-            const creepNumRoom = Memory.rooms[this.roomName].creepId;
-            const creepNumGlobal = Memory.global.creepId;
+            const creepNumRoom = this.memory.getCreepIdCounter();
+            const creepNumGlobal = this.memory.getGlobalCreepIdCounter();
             const idCreep = `${this.roomName}${typeCreep}${creepNumRoom}-${creepNumGlobal}`;
 
             // повышение счетчика
-            Memory.rooms[this.roomName].creepId += 1;
-            Memory.global.creepId += 1;
+            this.memory.incrementCreepIdCounter();
 
             const newTask = { id: idCreep, name: req, type: 'creep' };
             return newTask;
