@@ -1,15 +1,21 @@
 const memoryInit = {
-    init: () => {
-        if (Memory.flags?.initiated) return;
+    initMemGame: () => {
+        if (Memory.flags?.initiatedMem) return;
 
-        console.log('Инициализация памяти');
-
-        const roomName = Object.keys(Game.rooms)[0];
-
-        Memory.global = {};
+        console.log('Инициализация памяти игры');
 
         // порядковый номер всех крипов
-        Memory.global.creepId = 0;
+        Memory.global = {
+            creepId: 0,
+        };
+
+        Memory.flags.initiatedMem = true;
+    },
+
+    initMemRoom: (roomName) => {
+        if (Memory.rooms[roomName]?.flags?.initiatedMem) return;
+
+        console.log('Инициализация памяти комнаты');
 
         // память для комнаты
         Memory.rooms[roomName] = {
@@ -28,9 +34,10 @@ const memoryInit = {
             resources: {
                 energySources: {},
             },
+            flags: {
+                initiatedMem: true,
+            },
         };
-
-        Memory.flags.initiated = true;
     },
 
     clear: () => {
@@ -38,13 +45,13 @@ const memoryInit = {
 
         for (const name in listCreeps) {
             if (!(name in Game.creeps)) {
-                const deadCreepMemory = Memory.creeps[name]; 
+                const deadCreepMemory = Memory.creeps[name];
 
                 // освобождение источника, если harvester умер
                 if (deadCreepMemory.role === 'harvester' && deadCreepMemory.target) {
                     const roomName = deadCreepMemory.home;
                     const sourceId = deadCreepMemory.target;
-                    
+
                     if (
                         Memory.rooms[roomName] &&
                         Memory.rooms[roomName].resources.energySources[sourceId]

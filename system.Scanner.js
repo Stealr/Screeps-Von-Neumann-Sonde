@@ -4,7 +4,7 @@ class ScannerSystem {
     }
 
     scanEnergy() {
-        if (Memory.rooms[this.roomName].scanned) return
+        if (Memory.rooms[this.roomName].flags?.scanned) return
 
         const energyList = Game.rooms[this.roomName].find(FIND_SOURCES);
 
@@ -32,7 +32,7 @@ class ScannerSystem {
             };
         }
         console.log(`комната ${this.roomName} просканирована`)
-        Memory.rooms[this.roomName].scanned = true;
+        Memory.rooms[this.roomName].flags.scanned = true;
     }
 }
 

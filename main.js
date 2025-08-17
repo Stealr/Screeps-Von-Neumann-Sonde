@@ -2,7 +2,7 @@ const memoryManage = require('memory.Manage');
 const RoomCore = require('RoomCore');
 
 module.exports.loop = function () {
-    memoryManage.init();
+    memoryManage.initMemGame();
     memoryManage.clear();
 
     // const room = Object.entries(Game.rooms)
