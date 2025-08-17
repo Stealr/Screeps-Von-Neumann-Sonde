@@ -11,14 +11,23 @@ class CreepsSystem {
         this.creepsCarrier = Object.values(Game.creeps).filter(
             (creep) => creep.memory.role === 'carrier'
         );
-
         this.creepsBuilder = Object.values(Game.creeps).filter(
             (creep) => creep.memory.role === 'builder'
+        );
+        this.creepsUpgraders = Object.values(Game.creeps).filter(
+            (creep) => creep.memory.role === 'upgrader'
         );
     }
 
     run() {
-        // harvester
+        this.harvesterCycleLife();
+        this.builderCycleLife();
+        this.upgraderCycleLife();
+    }
+
+    harvesterCycleLife() {
+        const storage = this.findStorage();
+
         for (const creep of this.creepsHarvester) {
             const releaseSource = (idSource) => {
                 Memory.rooms[this.roomName].resources.energySources[idSource].current -= 1;
@@ -33,16 +42,42 @@ class CreepsSystem {
                     ].current += 1;
                 }
 
-                const storage = this.findStorage();
-                        
                 roles.harvester(creep, storage, releaseSource);
             }
         }
+    }
 
-        // builder
+    builderCycleLife() {
         for (const creep of this.creepsBuilder) {
+            // цель для строительства
             const target = Game.rooms[this.roomName].find(FIND_CONSTRUCTION_SITES)[0];
 
+            // склад для пополнения припасов
+            const listStorage = Memory.rooms[this.roomName].storages;
+            let replenishment;
+            if (listStorage.TS.length > 0) {
+                console.log('Take from TS');
+            } else if (listStorage.SLC.length > 0) {
+                console.log('Take from SLC');
+            } else {
+                replenishment =
+                    Game.spawns[
+                        listStorage.FS.find((storage) => {
+                            return Game.spawns[storage].store.getUsedCapacity(RESOURCE_ENERGY) > 10;
+                        })
+                    ];
+            }
+
+            if (target) {
+                roles.builder(creep, target, replenishment);
+            }
+        }
+    }
+
+    upgraderCycleLife() {
+        for (const creep of this.creepsUpgraders) {
+
+            // склад для пополнения припасов
             const listStorage = Memory.rooms[this.roomName].storages;
             let replenishment;
             if (listStorage.SLC.length > 0) {
@@ -58,9 +93,7 @@ class CreepsSystem {
                     ];
             }
 
-            if (target) {
-                roles.builder(creep, target, replenishment);
-            }
+            roles.upgrader(creep, replenishment);
         }
     }
 

@@ -31,7 +31,7 @@ class FactorySystem {
 
                 if (response === OK && spawnIsActive) {
                     this.spawns[spawn].spawnCreep(creepBody, creepId, {
-                        memory: { role: creepRole },
+                        memory: { role: creepRole, home: this.roomName },
                     });
 
                     // delete completed task
@@ -45,7 +45,7 @@ class FactorySystem {
      * Description
      * @param {list} task '[harvester, harvester]'
      */
-    createCreep(task) {
+    createTask(task) {
         // формирование id
         const processedTasks = task.map((req) => {
             const typeCreep = req[0].toUpperCase();

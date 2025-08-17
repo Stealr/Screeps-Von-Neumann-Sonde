@@ -15,7 +15,7 @@ const memoryInit = {
         Memory.rooms[roomName] = {
             creepId: 0,
             //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
-            reqCreeps: { harvester: 7, builder: 4, carrier: 0 }, // необходимые крипы
+            reqCreeps: { harvester: 2, builder: 1, carrier: 0, upgrader: 2 }, // необходимые крипы
             factory: {
                 listTasks: [],
             },
@@ -38,6 +38,21 @@ const memoryInit = {
 
         for (const name in listCreeps) {
             if (!(name in Game.creeps)) {
+                const deadCreepMemory = Memory.creeps[name]; 
+
+                // освобождение источника, если harvester умер
+                if (deadCreepMemory.role === 'harvester' && deadCreepMemory.target) {
+                    const roomName = deadCreepMemory.home;
+                    const sourceId = deadCreepMemory.target;
+                    
+                    if (
+                        Memory.rooms[roomName] &&
+                        Memory.rooms[roomName].resources.energySources[sourceId]
+                    ) {
+                        Memory.rooms[roomName].resources.energySources[sourceId].current -= 1;
+                    }
+                }
+
                 delete Memory.creeps[name];
             }
         }

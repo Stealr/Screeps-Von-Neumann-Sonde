@@ -1,8 +1,8 @@
 let roles = {
     /**
      * @param {any} creep // executor
-     * @param {any} source // mining point
      * @param {any} storage // storage
+     * @param {() => void} // callback function
      */
     harvester: (creep, storage, releaseSource) => {
         const source = Game.getObjectById(creep.memory.target);
@@ -41,6 +41,16 @@ let roles = {
     },
 
     carrier: () => {},
+
+    upgrader: (creep, replenishment) => {
+        if (creep.upgradeController(creep.room.controller) == ERR_NOT_ENOUGH_RESOURCES) {
+            if (creep.withdraw(replenishment, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(replenishment);
+            }
+        } else if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.controller);
+        }
+    },
 };
 
 module.exports = roles;
