@@ -4,9 +4,11 @@ class ScannerSystem {
     }
 
     scanEnergy() {
-        if (Memory.rooms[this.roomName].flags?.scanned) return
+        if (Memory.rooms[this.roomName]?.flags?.scanned) return;
 
         const energyList = Game.rooms[this.roomName].find(FIND_SOURCES);
+        let TotalAvailableCells = 0;
+        let energyCellList = {};
 
         for (const name in energyList) {
             let availableCells = 0;
@@ -26,13 +28,18 @@ class ScannerSystem {
                 }
             }
 
-            Memory.rooms[this.roomName].resources.energySources[energyList[name].id] = {
-                current: 0,
-                max: availableCells,
+            TotalAvailableCells += availableCells;
+            energyCellList = {
+                ...energyCellList,
+                [energyList[name].id]: {
+                    current: 0,
+                    max: availableCells,
+                },
             };
         }
-        console.log(`комната ${this.roomName} просканирована`)
-        Memory.rooms[this.roomName].flags.scanned = true;
+
+        console.log(`комната ${this.roomName} просканирована`);
+        return { TotalAvailableCells, availableCells: energyCellList };
     }
 }
 

@@ -13,10 +13,10 @@ class RoomCore {
     }
 
     test() {
-        memoryManage.initMemRoom(this.room.name);
-
         let scanner = new ScannerSystem(this.room.name)
-        scanner.scanEnergy();
+        const scannedData = scanner.scanEnergy();
+
+        memoryManage.initMemRoom(this.room.name, scannedData);
 
         let factory = new FactorySystem(this.room.name);
         factory.run();

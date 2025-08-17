@@ -12,7 +12,7 @@ const memoryInit = {
         Memory.flags.initiatedMem = true;
     },
 
-    initMemRoom: (roomName) => {
+    initMemRoom: (roomName, scannedData) => {
         if (Memory.rooms[roomName]?.flags?.initiatedMem) return;
 
         console.log('Инициализация памяти комнаты');
@@ -21,7 +21,7 @@ const memoryInit = {
         Memory.rooms[roomName] = {
             creepId: 0,
             //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
-            reqCreeps: { harvester: 2, builder: 1, carrier: 0, upgrader: 2 }, // необходимые крипы
+            reqCreeps: { harvester: scannedData.TotalAvailableCells, builder: 1, carrier: 0, upgrader: 0 }, // необходимые крипы
             factory: {
                 listTasks: [],
             },
@@ -32,10 +32,11 @@ const memoryInit = {
                 FS: [Object.keys(Game.spawns)[0]],
             },
             resources: {
-                energySources: {},
+                energySources: {...scannedData.availableCells},
             },
             flags: {
                 initiatedMem: true,
+                scanned: true,
             },
         };
     },
