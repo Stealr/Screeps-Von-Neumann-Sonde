@@ -5,6 +5,17 @@
 const MemoryManager = require('memory.Manage');
 const templateCreeps = require('template.Creeps');
 
+const BODYPARTS_COST = {
+    MOVE: 50,
+    WORK: 100,
+    CARRY: 50,
+    ATTACK:80,
+    RANGED_ATTACK: 150,
+    HEAL: 250,
+    CLAIM:600,
+    TOUGH: 10
+}
+
 class FactorySystem {
     constructor(roomName) {
         this.roomName = roomName;
@@ -31,6 +42,9 @@ class FactorySystem {
                 const spawnIsActive = this.spawns[spawn].isActive();
 
                 if (response === OK && spawnIsActive) {
+                    const cost = creepBody.reduce((acc, part) => acc + BODYPARTS_COST[part], 0)
+                    this.memory.addExpense(cost);
+
                     this.spawns[spawn].spawnCreep(creepBody, creepId, {
                         memory: { role: creepRole, home: this.roomName },
                     });

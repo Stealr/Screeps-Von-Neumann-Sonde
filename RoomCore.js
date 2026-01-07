@@ -2,6 +2,7 @@ const FactorySystem = require('system.Factory');
 const CheckCreepsSystem = require('system.CheckCreeps');
 const CreepsSystem = require('system.Creeps');
 const ScannerSystem = require('system.Scanner');
+const BuildingSystem = require('system.Building');
 const MemoryManager = require('memory.Manage');
 
 class RoomCore {
@@ -14,7 +15,7 @@ class RoomCore {
     }
 
     test() {
-        let scanner = new ScannerSystem(this.room.name)
+        let scanner = new ScannerSystem(this.room.name);
         const scannedData = scanner.scanEnergy();
 
         this.memory.initMemRoom(scannedData);
@@ -27,6 +28,9 @@ class RoomCore {
 
         let creeps = new CreepsSystem(this.room.name);
         creeps.run();
+
+        let building = new BuildingSystem(this.room.name, this.spawn[0]);
+        building.firstStageBuilding();
 
         // for (let i = 0; i < systems.length; i++) {
         //     let sys = new systems[i];

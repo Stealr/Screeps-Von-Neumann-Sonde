@@ -6,6 +6,9 @@ module.exports.loop = function () {
 
     memory.initMemGame();
     memory.clear();
+    memory.incrementGlobalTick();
+
+    //! тут добавлять profit раз в 1сек за счет каждого спавна
 
     // const room = Object.entries(Game.rooms)
     // console.log(Object.entries(room[0][1]));

@@ -4,7 +4,7 @@ let roles = {
      * @param {any} storage // storage
      * @param {() => void} // callback function
      */
-    harvester: (creep, storage, releaseSource) => {
+    harvester: (creep, storage, releaseSource, memory) => {
         const source = Game.getObjectById(creep.memory.target);
 
         if (creep.store.getFreeCapacity() > 0) {
@@ -18,7 +18,10 @@ let roles = {
             }
 
             //! написать логику, если не найден свободный storage
-            if (creep.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            const transferResult = creep.transfer(storage, RESOURCE_ENERGY);
+            if (transferResult === OK) {
+                memory.addProfit(creep.store.getUsedCapacity(RESOURCE_ENERGY));
+            } else if (transferResult === ERR_NOT_IN_RANGE) {
                 creep.moveTo(storage);
             }
         }
@@ -29,12 +32,15 @@ let roles = {
      * @param {object} target // target for build
      * @param {object} replenishment // energy replenishment storage
      */
-    builder: (creep, target, replenishment) => {
+    builder: (creep, target, replenishment, memory) => {
         const buildResult = creep.build(target);
 
         if (buildResult === ERR_NOT_ENOUGH_RESOURCES) {
             //! написать логику, если не найден replenishment
-            if (creep.withdraw(replenishment, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            const withdrawResult = creep.withdraw(replenishment, RESOURCE_ENERGY);
+            if (withdrawResult === OK) {
+                memory.addExpense(creep.store.getUsedCapacity(RESOURCE_ENERGY));
+            } else if (withdrawResult === ERR_NOT_IN_RANGE) {
                 creep.moveTo(replenishment);
             }
         } else if (buildResult === ERR_NOT_IN_RANGE) {

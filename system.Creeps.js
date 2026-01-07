@@ -42,7 +42,7 @@ class CreepsSystem {
                     this.memory.occupyEnergySources(closestSource.id);
                 }
 
-                roles.harvester(creep, storage, releaseSource);
+                roles.harvester(creep, storage, releaseSource, this.memory);
             }
         }
     }
@@ -70,7 +70,7 @@ class CreepsSystem {
             }
 
             if (target) {
-                roles.builder(creep, target, replenishment);
+                roles.builder(creep, target, replenishment, this.memory);
             }
         }
     }
