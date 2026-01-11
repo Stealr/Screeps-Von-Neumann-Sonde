@@ -1,14 +1,25 @@
-const FactorySystem = require('system.Factory');
-const CheckCreepsSystem = require('system.CheckCreeps');
-const CreepsSystem = require('system.Creeps');
-const ScannerSystem = require('system.Scanner');
-const BuildingSystem = require('system.Building');
-const MemoryManager = require('memory.Manage');
+// const FactorySystem = require('system.Factory');
+// const CheckCreepsSystem = require('system.CheckCreeps');
+// const CreepsSystem = require('system.Creeps');
+// const ScannerSystem = require('system.Scanner');
+// const BuildingSystem = require('system.Building');
+// const MemoryManager = require('memory.Manage');
+
+import FactorySystem from './system.Factory';
+import CheckCreepsSystem from './system.CheckCreeps';
+import CreepsSystem from './system.Creeps';
+import ScannerSystem from './system.Scanner';
+import MemoryManager from './memory.Manage';
+import BuildingSystem from './system.Building';
 
 class RoomCore {
+    room: Room;
+    spawn: StructureSpawn[];
+    memory: MemoryManager;
+
     systems = [CheckCreepsSystem, FactorySystem];
 
-    constructor(room) {
+    constructor(room: Room) {
         this.room = room;
         this.spawn = this.room.find(FIND_MY_SPAWNS);
         this.memory = new MemoryManager(this.room.name);
@@ -39,4 +50,4 @@ class RoomCore {
     }
 }
 
-module.exports = RoomCore;
+export default RoomCore;

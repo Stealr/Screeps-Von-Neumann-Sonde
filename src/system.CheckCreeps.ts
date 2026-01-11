@@ -1,7 +1,18 @@
-const MemoryManager = require('memory.Manage');
+import MemoryManager from './memory.Manage';
+import FactorySystemType from './system.Factory';
 
 class CheckUnitsSystem {
-    constructor(roomName, FactorySystem) {
+    factory: FactorySystemType;
+    roomName: string;
+    memory: MemoryManager;
+
+    reqCreeps: RoomMemory['reqCreeps'];
+    aliveCreeps: Partial<Record<CreepRoles, number>> = {};
+    expectedCreeps: Partial<Record<CreepRoles, number>> = {};
+
+    reqNum: number;
+
+    constructor(roomName: string, FactorySystem: FactorySystemType) {
         this.factory = FactorySystem;
         this.roomName = roomName;
         this.memory = new MemoryManager(this.roomName);
@@ -21,7 +32,7 @@ class CheckUnitsSystem {
         const countCreeps = Object.keys(Game.creeps).length;
 
         if (countCreeps != this.reqNum) {
-            for (let role in this.reqCreeps) {
+            for (const role of Object.keys(this.reqCreeps) as CreepRoles[]) {
                 if (
                     (this.aliveCreeps?.[role] ?? 0) + (this.expectedCreeps?.[role] ?? 0) <
                     this.reqCreeps[role]
@@ -32,11 +43,13 @@ class CheckUnitsSystem {
 
                     let lackCreeps;
                     if (isAliveCreeps && isExpectedCreeps) {
-                        lackCreeps = this.reqCreeps[role] - (this.expectedCreeps[role] + this.aliveCreeps[role]);
+                        lackCreeps =
+                            this.reqCreeps[role] -
+                            ((this.expectedCreeps[role] ?? 0) + (this.aliveCreeps[role] ?? 0));
                     } else if (isAliveCreeps === true && isExpectedCreeps === false) {
-                        lackCreeps = this.reqCreeps[role] - this.aliveCreeps[role];
+                        lackCreeps = this.reqCreeps[role] - (this.aliveCreeps[role] ?? 0);
                     } else if (isAliveCreeps === false && isExpectedCreeps && true) {
-                        lackCreeps = this.reqCreeps[role] - this.expectedCreeps[role];
+                        lackCreeps = this.reqCreeps[role] - (this.expectedCreeps[role] ?? 0);
                     } else {
                         lackCreeps = this.reqCreeps[role];
                     }
@@ -54,11 +67,7 @@ class CheckUnitsSystem {
         for (let name in Game.creeps) {
             const role = Game.creeps[name].memory.role;
 
-            if (role in this.aliveCreeps) {
-                this.aliveCreeps[role] += 1;
-            } else {
-                this.aliveCreeps[role] = 1;
-            }
+            this.aliveCreeps[role] = (this.aliveCreeps[role] ?? 0) + 1;
         }
     }
 
@@ -66,18 +75,14 @@ class CheckUnitsSystem {
      * Description - определяет объект ожидаемых крипов по ролям
      */
     defineExpectedCreeps() {
-        const listTasks = this.memory.getFactoryTasks()
+        const listTasks = this.memory.getFactoryTasks();
 
         for (let order in listTasks) {
             const role = listTasks[order].name;
 
-            if (role in this.expectedCreeps) {
-                this.expectedCreeps[role] += 1;
-            } else {
-                this.expectedCreeps[role] = 1;
-            }
+            this.expectedCreeps[role] = (this.expectedCreeps[role] ?? 0) + 1;
         }
     }
 }
 
-module.exports = CheckUnitsSystem;
+export default CheckUnitsSystem;
