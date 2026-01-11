@@ -2,22 +2,27 @@
 
 // id крипа: {roomName}{type}{creepNumRoom}-{creepNumGlobal}_{Bob}
 // пример: W1R1H3-14_Bob
-const MemoryManager = require('memory.Manage');
-const templateCreeps = require('template.Creeps');
+import MemoryManager from './memory.Manage';
+import templateCreeps from './template.Creeps';
 
-const BODYPARTS_COST = {
-    MOVE: 50,
-    WORK: 100,
-    CARRY: 50,
-    ATTACK:80,
-    RANGED_ATTACK: 150,
-    HEAL: 250,
-    CLAIM:600,
-    TOUGH: 10
+const BODYPARTS_COST: Record<BodyPartConstant, number> = {
+    move: 50,
+    work: 100,
+    carry: 50,
+    attack: 80,
+    ranged_attack: 150,
+    heal: 250,
+    claim: 600,
+    tough: 10
 }
 
 class FactorySystem {
-    constructor(roomName) {
+    roomName: string;
+    memory: MemoryManager;
+    spawns: StructureSpawn[];
+    listTasks: ListTasksItem[];
+
+    constructor(roomName: string) {
         this.roomName = roomName;
         this.memory = new MemoryManager(this.roomName);
 
@@ -37,6 +42,7 @@ class FactorySystem {
 
                 const response = this.spawns[spawn].spawnCreep(creepBody, creepId, {
                     dryRun: true,
+                    // @ts-ignore: dryRun mode doesn't need full CreepMemory (missing home)
                     memory: { role: creepRole },
                 });
                 const spawnIsActive = this.spawns[spawn].isActive();
@@ -60,7 +66,7 @@ class FactorySystem {
      * Description
      * @param {list} task '[harvester, harvester]'
      */
-    createTask(task) {
+    createTask(task: TypeOrder[]) {
         // формирование id
         const processedTasks = task.map((req) => {
             const typeCreep = req[0].toUpperCase();
@@ -80,4 +86,4 @@ class FactorySystem {
     }
 }
 
-module.exports = FactorySystem;
+export default FactorySystem;

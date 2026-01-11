@@ -1,12 +1,15 @@
-const MemoryManager = require('memory.Manage');
-const RoomCore = require('RoomCore');
+import MemoryManager from './memory.Manage';
+import RoomCore from './RoomCore';
 
-module.exports.loop = function () {
-    const memory = new MemoryManager();
+export function loop(): void {
+    const homeRoom = Object.keys(Game.rooms)[0];
+    const memory = new MemoryManager(homeRoom);
 
     memory.initMemGame();
     memory.clear();
     memory.incrementGlobalTick();
+
+    // const spawn = Game.spawns['Spawn1'].memory.test = 1;
 
     //! тут добавлять profit раз в 1сек за счет каждого спавна
 

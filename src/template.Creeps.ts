@@ -24,4 +24,4 @@ const templateCreeps = {
 //     },
 // };
 
-module.exports = templateCreeps;
+export default templateCreeps;

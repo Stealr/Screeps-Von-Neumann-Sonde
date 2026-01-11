@@ -1,5 +1,9 @@
+import { ScannedData } from './system.Scanner';
+
 class MemoryManager {
-    constructor(roomName) {
+    roomName: string;
+
+    constructor(roomName: string) {
         this.roomName = roomName;
     }
 
@@ -18,7 +22,7 @@ class MemoryManager {
         Memory.flags.initiatedMem = true;
     }
 
-    initMemRoom(scannedData) {
+    initMemRoom(scannedData: ScannedData | undefined) {
         if (Memory.rooms[this.roomName]?.flags?.initiatedMem) return;
 
         console.log('Инициализация памяти комнаты');
@@ -28,7 +32,7 @@ class MemoryManager {
             creepId: 0,
             //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
             reqCreeps: {
-                harvester: scannedData.TotalAvailableCells,
+                harvester: scannedData?.TotalAvailableCells ?? 0,
                 builder: 1,
                 upgrader: 0,
                 carrier: 0,
@@ -40,10 +44,10 @@ class MemoryManager {
             storages: {
                 SLC: [],
                 TS: [],
-                FS: [Object.keys(Game.spawns)[0]],
+                FS: [Object.values(Game.spawns)[0].id as Id<StructureSpawn>],
             },
             resources: {
-                energySources: { ...scannedData.availableCells },
+                energySources: { ...scannedData?.availableCells },
             },
             stats: {
                 energy: {
@@ -65,11 +69,11 @@ class MemoryManager {
 
     // --- Stats ---
 
-    addProfit(amount) {
+    addProfit(amount: number) {
         Memory.rooms[this.roomName].stats.energy.profit += amount;
     }
 
-    addExpense(amount) {
+    addExpense(amount: number) {
         Memory.rooms[this.roomName].stats.energy.expense += amount;
     }
 
@@ -119,11 +123,11 @@ class MemoryManager {
         return Memory.rooms[this.roomName]?.factory.listTasks;
     }
 
-    addTask(task) {
+    addTask(task: ListTasksItem) {
         Memory.rooms[this.roomName].factory.listTasks.push(task);
     }
 
-    addTasks(tasks) {
+    addTasks(tasks: ListTasksItem[]) {
         Memory.rooms[this.roomName].factory.listTasks.push(...tasks);
     }
 
@@ -136,11 +140,11 @@ class MemoryManager {
         return Memory.rooms[this.roomName]?.resources.energySources;
     }
 
-    occupyEnergySources(idSource) {
+    occupyEnergySources(idSource: string) {
         Memory.rooms[this.roomName].resources.energySources[idSource].current += 1;
     }
 
-    releaseEnergySources(idSource) {
+    releaseEnergySources(idSource: string) {
         Memory.rooms[this.roomName].resources.energySources[idSource].current -= 1;
     }
 
@@ -184,4 +188,4 @@ class MemoryManager {
     }
 }
 
-module.exports = MemoryManager;
+export default MemoryManager;

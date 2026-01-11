@@ -1,17 +1,32 @@
-const MemoryManager = require('memory.Manage');
+import MemoryManager from './memory.Manage';
+
+interface EnergySourceInfo {
+    [idSource: string]: {
+        current: number;
+        max: number;
+    };
+}
+
+export interface ScannedData {
+    TotalAvailableCells: number;
+    availableCells: EnergySourceInfo;
+}
 
 class ScannerSystem {
-    constructor(roomName) {
+    roomName: string;
+    memory: MemoryManager;
+
+    constructor(roomName: string) {
         this.roomName = roomName;
         this.memory = new MemoryManager(this.roomName);
     }
 
-    scanEnergy() {
+    scanEnergy(): ScannedData | undefined {
         if (this.memory.getScannedFlag()) return;
 
         const energyList = Game.rooms[this.roomName].find(FIND_SOURCES);
         let TotalAvailableCells = 0;
-        let energyCellList = {};
+        let energyCellList: EnergySourceInfo = {};
 
         for (const name in energyList) {
             let availableCells = 0;
@@ -41,9 +56,9 @@ class ScannerSystem {
             };
         }
 
-        console.log(`комната ${this.roomName} просканирована`);
+        console.log(`room ${this.roomName} is scanned`);
         return { TotalAvailableCells, availableCells: energyCellList };
     }
 }
 
-module.exports = ScannerSystem;
+export default ScannerSystem;

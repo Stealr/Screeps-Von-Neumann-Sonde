@@ -1,8 +1,17 @@
-const roles = require('roles.Creeps');
-const MemoryManager = require('memory.Manage');
+import roles from './roles.Creeps';
+import MemoryManager from './memory.Manage';
 
 class CreepsSystem {
-    constructor(roomName) {
+    roomName: string;
+    memory: MemoryManager;
+    spawns: StructureSpawn[];
+
+    creepsHarvester: Creep[];
+    creepsCarrier: Creep[];
+    creepsBuilder: Creep[];
+    creepsUpgraders: Creep[];
+
+    constructor(roomName: string) {
         this.roomName = roomName;
         this.memory = new MemoryManager(this.roomName);
         this.spawns = Game.rooms[roomName].find(FIND_MY_SPAWNS);
@@ -28,45 +37,44 @@ class CreepsSystem {
     }
 
     harvesterCycleLife() {
-        const storage = this.findStorage();
+        const storage = this.findStorage('FS', 'transfer');
 
         for (const creep of this.creepsHarvester) {
-            const releaseSource = (idSource) => {
+            const releaseSource = (idSource: string) => {
                 this.memory.releaseEnergySources(idSource);
             };
 
             const closestSource = this.findClosestSource(creep);
             if (closestSource || creep.memory.target) {
-                if (!creep.memory.target) {
+                if (!creep.memory.target && closestSource) {
                     creep.memory.target = closestSource.id;
                     this.memory.occupyEnergySources(closestSource.id);
                 }
-
+                
                 roles.harvester(creep, storage, releaseSource, this.memory);
             }
         }
     }
 
     builderCycleLife() {
-        const listStorage = this.memory.getStorageList()
-
         for (const creep of this.creepsBuilder) {
             // цель для строительства
             const target = Game.rooms[this.roomName].find(FIND_CONSTRUCTION_SITES)[0];
 
             // склад для пополнения припасов
-            let replenishment;
-            if (listStorage.TS.length > 0) {
+            let replenishment = null;
+            if (this.findStorage('TS', 'withdraw')) {
                 console.log('Take from TS');
-            } else if (listStorage.SLC.length > 0) {
+            } else if (this.findStorage('SLC', 'withdraw')) {
                 console.log('Take from SLC');
             } else {
-                replenishment =
-                    Game.spawns[
-                        listStorage.FS.find((storage) => {
-                            return Game.spawns[storage].store.getUsedCapacity(RESOURCE_ENERGY) > 10;
-                        })
-                    ];
+                replenishment = this.findStorage('FS', 'withdraw');
+                // replenishment =
+                //     Game.spawns[
+                //         listStorage.FS.find((storage) => {
+                //             return Game.spawns[storage].store.getUsedCapacity(RESOURCE_ENERGY) > 10;
+                //         })
+                //     ];
             }
 
             if (target) {
@@ -76,29 +84,28 @@ class CreepsSystem {
     }
 
     upgraderCycleLife() {
-        const listStorage = this.memory.getStorageList()
-
         for (const creep of this.creepsUpgraders) {
             // склад для пополнения припасов
-            let replenishment;
-            if (listStorage.SLC.length > 0) {
+            let replenishment = null;
+            if (this.findStorage('SLC', 'withdraw')) {
                 console.log('Take from SLC');
-            } else if (listStorage.TS.length > 0) {
+            } else if (this.findStorage('TS', 'withdraw')) {
                 console.log('Take from TS');
             } else {
-                replenishment =
-                    Game.spawns[
-                        listStorage.FS.find((storage) => {
-                            return Game.spawns[storage].store.getUsedCapacity(RESOURCE_ENERGY) > 10;
-                        })
-                    ];
+                replenishment = this.findStorage('FS', 'withdraw');
+                // replenishment =
+                //     Game.spawns[
+                //         listStorage.FS.find((storage) => {
+                //             return Game.spawns[storage].store.getUsedCapacity(RESOURCE_ENERGY) > 10;
+                //         })
+                //     ];
             }
 
-            roles.upgrader(creep, replenishment);
+            roles.upgrader(creep, replenishment)
         }
     }
 
-    findClosestSource(creep) {
+    findClosestSource(creep: Creep) {
         const energyList = this.memory.getEnergySources();
 
         const actualSources = Game.rooms[this.roomName].find(FIND_SOURCES);
@@ -116,23 +123,25 @@ class CreepsSystem {
         return closestSource;
     }
 
-    findStorage() {
-        const listStorage = this.memory.getStorageList()
+    findStorage(typeStorage: 'TS' | 'SLC' | 'FS', goal: 'withdraw' | 'transfer') {
+        const listStorage = this.memory.getStorageList();
 
-        let storageTarget = null;
-        if (listStorage.TS.length > 0) {
-            storageTarget = null;
+        //! Ищет не ближайший, а первый попавшийся
+        let storageObj = null;
+        if (goal === 'withdraw') {
+            storageObj = listStorage[typeStorage].find((id) => {
+                const storage = Game.getObjectById(id);
+                return storage ? storage?.store.getUsedCapacity(RESOURCE_ENERGY) > 10 : null;
+            });
         } else {
-            storageTarget =
-                Game.spawns[
-                    listStorage.FS.find((storage) => {
-                        return Game.spawns[storage].store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                    })
-                ];
+            storageObj = listStorage[typeStorage].find((id) => {
+                const storage = Game.getObjectById(id);
+                return storage ? storage?.store.getFreeCapacity(RESOURCE_ENERGY) > 0 : null;
+            });
         }
 
-        return storageTarget;
+        return storageObj ? Game.getObjectById(storageObj) : null;
     }
 }
 
-module.exports = CreepsSystem;
+export default CreepsSystem;
