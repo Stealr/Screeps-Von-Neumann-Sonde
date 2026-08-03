@@ -34,7 +34,6 @@ class FactorySystem {
         //! потом тут должно быть renew и reсycle действия
 
         if (this.listTasks.length !== 0) {
-            // spawnCreep действие, дается заказ не занятому спавну
             for (let spawn = 0; spawn < this.spawns.length; spawn++) {
                 const creepRole = this.listTasks[0].name;
                 const creepBody = templateCreeps[creepRole];
@@ -55,17 +54,13 @@ class FactorySystem {
                         memory: { role: creepRole, home: this.roomName },
                     });
 
-                    // delete completed task
+
                     this.listTasks.splice(0, 1);
                 }
             }
         }
     }
 
-    /**
-     * Description
-     * @param {list} task '[harvester, harvester]'
-     */
     createTask(task: TypeOrder[]) {
         // формирование id
         const processedTasks = task.map((req) => {
@@ -74,14 +69,12 @@ class FactorySystem {
             const creepNumGlobal = this.memory.getGlobalCreepIdCounter();
             const idCreep = `${this.roomName}${typeCreep}${creepNumRoom}-${creepNumGlobal}`;
 
-            // повышение счетчика
             this.memory.incrementCreepIdCounter();
 
             const newTask = { id: idCreep, name: req, type: 'creep' };
             return newTask;
         });
 
-        // добавление заказа в список
         this.listTasks.push(...processedTasks);
     }
 }

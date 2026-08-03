@@ -1,5 +1,6 @@
 import MemoryManager from './memory.Manage';
 import RoomCore from './RoomCore';
+import Logger from './Logger';
 
 export function loop(): void {
     const homeRoom = Object.keys(Game.rooms)[0];
@@ -7,9 +8,7 @@ export function loop(): void {
 
     memory.initMemGame();
     memory.clear();
-    memory.incrementGlobalTick();
-
-    // const spawn = Game.spawns['Spawn1'].memory.test = 1;
+    // memory.incrementGlobalTick();
 
     //! тут добавлять profit раз в 1сек за счет каждого спавна
 
@@ -24,7 +23,7 @@ export function loop(): void {
     // }
 
     // console.log(spawn)
-};
+}
 
 class Core {
     constructor() {

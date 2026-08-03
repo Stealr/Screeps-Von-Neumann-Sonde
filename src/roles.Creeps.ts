@@ -60,9 +60,12 @@ const roles: RolesTypes = {
         if (buildResult === ERR_NOT_ENOUGH_RESOURCES) {
             //! написать логику, если не найден replenishment
             if (replenishment) {
-                const withdrawResult = creep.withdraw(replenishment, RESOURCE_ENERGY);
+                const amount = creep.store.getFreeCapacity(); 
+                const withdrawResult = creep.withdraw(replenishment, RESOURCE_ENERGY, amount);
+
                 if (withdrawResult === OK) {
-                    memory.addExpense(creep.store.getUsedCapacity(RESOURCE_ENERGY));
+                    console.log(`Builder withdrew ${amount} energy test`);
+                    memory.addExpense(amount);
                 } else if (withdrawResult === ERR_NOT_IN_RANGE) {
                     creep.moveTo(replenishment);
                 }
@@ -80,7 +83,10 @@ const roles: RolesTypes = {
         const upgraderResults = creep.upgradeController(creep.room.controller);
 
         if (upgraderResults === ERR_NOT_ENOUGH_RESOURCES) {
-            if (replenishment && creep.withdraw(replenishment, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            if (
+                replenishment &&
+                creep.withdraw(replenishment, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
+            ) {
                 creep.moveTo(replenishment);
             }
         } else if (upgraderResults === ERR_NOT_IN_RANGE) {

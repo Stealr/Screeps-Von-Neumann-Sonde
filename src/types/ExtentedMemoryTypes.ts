@@ -1,7 +1,18 @@
+interface FinanceEvent {
+    amount: number;
+    tick: number;
+}
+
 interface Memory {
     global: {
         creepId: number;
         tick: number;
+        stats: {
+            energy: {
+                totalProfit: FinanceEvent[];
+                totalExpense: FinanceEvent[];
+            };
+        };
     };
     flags: {
         initiatedMem: boolean;
@@ -29,8 +40,8 @@ interface RoomMemory {
     };
     stats: {
         energy: {
-            profit: number;
-            expense: number;
+            profit: FinanceEvent[];
+            expense: FinanceEvent[];
         };
     };
     flags: {

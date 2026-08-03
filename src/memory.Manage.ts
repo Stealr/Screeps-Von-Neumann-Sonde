@@ -17,6 +17,12 @@ class MemoryManager {
         Memory.global = {
             creepId: 0,
             tick: 0,
+            stats: {
+                energy: {
+                    totalProfit: [],
+                    totalExpense: [],
+                },
+            },
         };
 
         Memory.flags.initiatedMem = true;
@@ -51,8 +57,8 @@ class MemoryManager {
             },
             stats: {
                 energy: {
-                    profit: 0,
-                    expense: 0,
+                    profit: [],
+                    expense: [],
                 },
             },
             flags: {
@@ -68,23 +74,36 @@ class MemoryManager {
     }
 
     // --- Stats ---
-
     addProfit(amount: number) {
-        Memory.rooms[this.roomName].stats.energy.profit += amount;
+        const roomProfit = Memory.rooms[this.roomName].stats.energy.profit;
+        roomProfit.push({ amount, tick: Game.time });
+        Memory.rooms[this.roomName].stats.energy.profit = roomProfit.filter(
+            (event) => event.tick >= Game.time - 60
+        );
+
+        const globalProfit = Memory.global.stats.energy.totalProfit;
+        globalProfit.push({ amount, tick: Game.time });
+        Memory.global.stats.energy.totalProfit = globalProfit.filter((event) => event.tick >= Game.time - 60);
     }
 
     addExpense(amount: number) {
-        Memory.rooms[this.roomName].stats.energy.expense += amount;
+        const roomExpense = Memory.rooms[this.roomName].stats.energy.expense;
+        roomExpense.push({ amount, tick: Game.time });
+        Memory.rooms[this.roomName].stats.energy.expense = roomExpense.filter(
+            (event) => event.tick >= Game.time - 60
+        );
+
+        const globalExpense = Memory.global.stats.energy.totalExpense;
+        globalExpense.push({ amount, tick: Game.time });
+        Memory.global.stats.energy.totalExpense = globalExpense.filter((event) => event.tick >= Game.time - 60);
     }
 
-    getEnergyStats() {
+    getRoomEnergyStats() {
         return Memory.rooms[this.roomName].stats.energy;
     }
 
-    resetEnergyStats() {
-        const stats = Memory.rooms[this.roomName].stats.energy;
-        stats.profit = 0;
-        stats.expense = 0;
+    getGlobalEnergyStats() {
+        return Memory.global.stats.energy;
     }
 
     // --- CREEPS ---
@@ -119,20 +138,11 @@ class MemoryManager {
     }
 
     // --- Factory ---
+    /**
+     * @returns Возвращает ссылку на listTasks в памяти комнаты
+     */
     getFactoryTasks() {
         return Memory.rooms[this.roomName]?.factory.listTasks;
-    }
-
-    addTask(task: ListTasksItem) {
-        Memory.rooms[this.roomName].factory.listTasks.push(task);
-    }
-
-    addTasks(tasks: ListTasksItem[]) {
-        Memory.rooms[this.roomName].factory.listTasks.push(...tasks);
-    }
-
-    removeFirstTask() {
-        return Memory.rooms[this.roomName].factory.listTasks.shift();
     }
 
     // --- Resources ---
@@ -169,7 +179,7 @@ class MemoryManager {
             if (!(name in Game.creeps)) {
                 const deadCreepMemory = Memory.creeps[name];
 
-                // освобождение источника, если harvester умер
+                // release source if creep is dead
                 if (deadCreepMemory.role === 'harvester' && deadCreepMemory.target) {
                     const roomName = deadCreepMemory.home;
                     const sourceId = deadCreepMemory.target;

@@ -11,6 +11,7 @@ import CreepsSystem from './system.Creeps';
 import ScannerSystem from './system.Scanner';
 import MemoryManager from './memory.Manage';
 import BuildingSystem from './system.Building';
+import Logger from './Logger';
 
 class RoomCore {
     room: Room;
@@ -26,6 +27,8 @@ class RoomCore {
     }
 
     test() {
+        //! тут нужно за каждый спавн подсчитывать доход
+
         let scanner = new ScannerSystem(this.room.name);
         const scannedData = scanner.scanEnergy();
 
@@ -42,6 +45,11 @@ class RoomCore {
 
         let building = new BuildingSystem(this.room.name, this.spawn[0]);
         building.firstStageBuilding();
+
+        this.memory.addProfit(1);
+
+        const logger = new Logger(this.room.name);
+        logger.run();
 
         // for (let i = 0; i < systems.length; i++) {
         //     let sys = new systems[i];
