@@ -1,0 +1,62 @@
+---
+description: Архитектура RoomCore, Factory, Memory, склады FS/TS/SLC
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Архитектура
+
+## Слои
+
+- **RoomCore** — оркестратор тика комнаты; подключает системы по порядку.
+- **Системы** (`system.*`) — политика комнаты (кого спавнить, куда строить, откуда брать энергию).
+- **Роли** (`roles.*`) — исполнитель: move / harvest / transfer / build / upgrade. Без решений уровня «сколько крипов» или «какая стадия стройки».
+- **Factory** — единственная точка работ завода. Очередь: `Memory.rooms[room].factory.listTasks`.
+
+На схемах очередь может называться `listOrders` — в коде канон **`listTasks`** (работы завода: spawn сейчас; позже renew/recycle). Не путать с Market orders.
+
+## Сборка (бандлер)
+
+- Screeps не использует вложенные папки модулей как обычный Node-проект.
+- Канон: **бандлер** (rollup/webpack) → артефакт для игры (предпочтительно один `main.js`); `deploy` копирует бандл.
+- Папки в `src/` (`systems/`, `memory/`, …) допустимы **после** задачи `0.9`. До бандлера не разносить runtime по подпапкам.
+- Тесты и `node_modules` в бандл/deploy не включать.
+
+## Memory
+
+- Читать/писать `Memory` только через accessor-слой (сейчас `memory.Manage.ts`; позже разбиение по доменам: Game / Room / Storage / Factory).
+- Не писать `Memory.rooms[x].…` напрямую из ролей и систем вне accessor.
+- Не использовать `Memory.flags` для своих init-флагов игры (конфликт с Flag memory) — целевое место: `Memory.von` / `Memory.meta` (задача 0.4).
+- Крипов комнаты фильтровать и считать по `creep.memory.home === roomName`.
+
+## Склады (канон)
+
+| Тег | Назначение |
+|-----|------------|
+| **FS** | Factory Storage — spawns |
+| **TS** | Transshipment у source (container) |
+| **SLC** | Долговременный склад (storage / крупные контейнеры) |
+
+Приоритеты:
+
+- Harvester deposit: **TS → иначе FS**
+- Builder / upgrader withdraw: **SLC → TS → FS**
+- Carrier: **TS → SLC / FS**
+
+## Антипаттерны
+
+```typescript
+// ❌ BAD — spawn вне Factory
+spawn.spawnCreep(body, name, { memory });
+
+// ✅ GOOD — задача в listTasks, исполняет Factory
+factory.createTask(['harvester']);
+```
+
+```typescript
+// ❌ BAD — сырой Memory в роли
+Memory.rooms[room].storages.TS.push(id);
+
+// ✅ GOOD — через accessor
+storageMemory.addTS(id);
+```

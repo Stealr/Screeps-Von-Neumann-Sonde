@@ -1,0 +1,37 @@
+---
+description: Соглашения TypeScript, бандлер и unit-тесты
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Screeps + TypeScript
+
+- Типы игры: `@types/screeps`. Держать `strict` из `tsconfig.json`.
+- Одна задача бэклога → узкий diff; не смешивать рефакторинг с новой фичей без нужды.
+- Не раздувать god-файлы (`memory.Manage`, `roles.Creeps`, `RoomCore`): новую область — отдельный модуль/accessor.
+- В горячих циклах по крипам осторожно с `room.find` / глобальным перебором `Game.creeps` — кэшировать на тик комнаты, фильтровать по `home`.
+- Роли: `harvester` | `builder` | `upgrader` | `carrier`.
+- Системы: файлы `system.*`, осмысленный `export` name, согласованный с ролью модуля.
+- Имена крипов/задач завода уже в формате id из Factory — не ломать схему без задачи в VISION.
+- CPU: без лишних аллокаций на тик; один memory-контекст на комнату предпочтительнее десятка `new MemoryManager`.
+
+## Бандлер
+
+- Цель сборки для игры — бандл (задача `0.9`), не дерево вложенных `.js` из `tsc`.
+- До `0.9` оставлять runtime-модули в плоском `src/`; после — папки ок, entry один.
+
+## Unit-тесты
+
+- Только unit-тесты чистой логики (Vitest/Jest), задача `0.10`.
+- Не тащить тесты в Screeps-бандл; не писать интеграцию с private server / полные моки API без решения в VISION.
+- Выносить тестируемую логику в чистые функции, где уместно.
+
+```typescript
+// ❌ BAD — глобальный filter без home
+Object.values(Game.creeps).filter((c) => c.memory.role === 'harvester');
+
+// ✅ GOOD
+Object.values(Game.creeps).filter(
+  (c) => c.memory.role === 'harvester' && c.memory.home === roomName
+);
+```
