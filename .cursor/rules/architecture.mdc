@@ -17,16 +17,16 @@ alwaysApply: false
 
 ## Сборка (бандлер)
 
-- Screeps не использует вложенные папки модулей как обычный Node-проект.
-- Канон: **бандлер** (rollup/webpack) → артефакт для игры (предпочтительно один `main.js`); `deploy` копирует бандл.
-- Папки в `src/` (`systems/`, `memory/`, …) допустимы **после** задачи `0.9`. До бандлера не разносить runtime по подпапкам.
+- Сборка для игры: **rollup** → один `dist/main.js` (`npm run build`).
+- `deploy` копирует бандл (`dist/main.js`), не дерево `tsc`.
+- Папки в `src/` (`systems/`, `memory/`, …) допустимы; entry — `src/main.ts`.
 - Тесты и `node_modules` в бандл/deploy не включать.
 
 ## Memory
 
 - Читать/писать `Memory` только через accessor-слой (сейчас `memory.Manage.ts`; позже разбиение по доменам: Game / Room / Storage / Factory).
 - Не писать `Memory.rooms[x].…` напрямую из ролей и систем вне accessor.
-- Не использовать `Memory.flags` для своих init-флагов игры (конфликт с Flag memory) — целевое место: `Memory.von` / `Memory.meta` (задача 0.4).
+- Не использовать `Memory.flags` для своих init-флагов игры (конфликт с Flag memory) — game-init: `Memory.von`.
 - Крипов комнаты фильтровать и считать по `creep.memory.home === roomName`.
 
 ## Склады (канон)

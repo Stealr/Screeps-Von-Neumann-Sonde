@@ -1,5 +1,6 @@
 import MemoryManager from './memory.Manage';
 import FactorySystemType from './system.Factory';
+import { calcCreepLack, syncTaskActions } from './logic.creeps';
 
 class CheckUnitsSystem {
     factory: FactorySystemType;
@@ -27,12 +28,14 @@ class CheckUnitsSystem {
         for (const role of Object.keys(this.reqCreeps) as CreepRoles[]) {
             const alive = this.aliveCreeps[role] ?? 0;
             const expected = this.expectedCreeps[role] ?? 0;
-            const lack = this.reqCreeps[role] - alive - expected;
+            const lack = calcCreepLack(this.reqCreeps[role], alive, expected);
+            const { create, cancel } = syncTaskActions(lack);
 
-            if (lack > 0) {
-                this.factory.createTask(Array.from({ length: lack }, () => role));
-            } else if (lack < 0) {
-                this.factory.cancelTasks(role, -lack);
+            if (create > 0) {
+                this.factory.createTask(Array.from({ length: create }, () => role));
+            }
+            if (cancel > 0) {
+                this.factory.cancelTasks(role, cancel);
             }
         }
     }

@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true,
-    "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
-    "types": ["@types/screeps"]
+    "skipLibCheck": true,
+    "types": ["screeps"],
+    "noEmit": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "tests", "dist"]
 }

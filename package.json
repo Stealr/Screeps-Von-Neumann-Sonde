@@ -1,9 +1,12 @@
 {
     "name": "von-neumann",
     "scripts": {
-        "build": "tsc",
-        "deploy": "npm run build & node deploy.js",
-        "watch": "tsc-watch --onCompilationComplete \"node deploy.js\""
+        "build": "rollup -c",
+        "typecheck": "tsc --noEmit",
+        "deploy": "npm run build && node deploy.js",
+        "watch": "rollup -c --watch",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "dependencies": {
         "@types/lodash": "^4.17.21",
@@ -11,7 +14,13 @@
         "@types/screeps": "^3.3.8"
     },
     "devDependencies": {
+        "@rollup/plugin-commonjs": "^29.0.3",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-typescript": "^12.3.0",
         "dotenv": "^17.2.3",
-        "tsc-watch": "^7.2.0"
+        "rollup": "^4.62.4",
+        "tslib": "^2.8.1",
+        "typescript": "^5.9.3",
+        "vitest": "^4.1.10"
     }
 }

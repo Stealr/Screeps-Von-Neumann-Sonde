@@ -4,6 +4,7 @@
 // пример: W1R1H3-14_Bob
 import MemoryManager from './memory.Manage';
 import templateCreeps from './template.Creeps';
+import { cancelTasksFromQueue } from './logic.creeps';
 
 const BODYPARTS_COST: Record<BodyPartConstant, number> = {
     move: 50,
@@ -81,14 +82,9 @@ class FactorySystem {
      * Убирает лишние задачи роли с хвоста очереди (синхрон с reqCreeps).
      */
     cancelTasks(role: TypeOrder, count: number) {
-        let remaining = count;
-
-        for (let i = this.listTasks.length - 1; i >= 0 && remaining > 0; i--) {
-            if (this.listTasks[i].name === role) {
-                this.listTasks.splice(i, 1);
-                remaining -= 1;
-            }
-        }
+        const next = cancelTasksFromQueue(this.listTasks, role, count);
+        this.listTasks.length = 0;
+        this.listTasks.push(...next);
     }
 }
 
