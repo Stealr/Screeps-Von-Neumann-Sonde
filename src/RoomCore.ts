@@ -1,10 +1,3 @@
-// const FactorySystem = require('system.Factory');
-// const CheckCreepsSystem = require('system.CheckCreeps');
-// const CreepsSystem = require('system.Creeps');
-// const ScannerSystem = require('system.Scanner');
-// const BuildingSystem = require('system.Building');
-// const MemoryManager = require('memory.Manage');
-
 import FactorySystem from './system.Factory';
 import CheckCreepsSystem from './system.CheckCreeps';
 import CreepsSystem from './system.Creeps';
@@ -26,29 +19,27 @@ class RoomCore {
         this.memory = new MemoryManager(this.room.name);
     }
 
-    test() {
+    run() {
         //! тут нужно за каждый спавн подсчитывать доход
 
-        let scanner = new ScannerSystem(this.room.name);
+        let scanner = new ScannerSystem(this.room.name, this.memory);
         const scannedData = scanner.scanEnergy();
 
         this.memory.initMemRoom(scannedData);
 
-        let factory = new FactorySystem(this.room.name);
+        let factory = new FactorySystem(this.room.name, this.memory);
         factory.run();
 
-        let checker = new CheckCreepsSystem(this.room.name, factory);
+        let checker = new CheckCreepsSystem(this.room.name, factory, this.memory);
         checker.run();
 
-        let creeps = new CreepsSystem(this.room.name);
+        let creeps = new CreepsSystem(this.room.name, this.memory);
         creeps.run();
 
-        let building = new BuildingSystem(this.room.name, this.spawn[0]);
+        let building = new BuildingSystem(this.room.name, this.spawn[0], this.memory);
         building.firstStageBuilding();
 
-        this.memory.addProfit(1);
-
-        const logger = new Logger(this.room.name);
+        const logger = new Logger(this.room.name, this.memory);
         logger.run();
 
         // for (let i = 0; i < systems.length; i++) {

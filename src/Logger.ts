@@ -4,9 +4,9 @@ class Logger {
     room: string;
     memory: MemoryManager;
 
-    constructor(room: string) {
+    constructor(room: string, memory: MemoryManager) {
         this.room = room;
-        this.memory = new MemoryManager(this.room);
+        this.memory = memory;
     }
 
     run() {

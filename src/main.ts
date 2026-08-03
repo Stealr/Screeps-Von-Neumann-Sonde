@@ -1,21 +1,18 @@
-import MemoryManager from './memory.Manage';
 import RoomCore from './RoomCore';
-import Logger from './Logger';
 
 export function loop(): void {
-    const homeRoom = Object.keys(Game.rooms)[0];
-    const memory = new MemoryManager(homeRoom);
+    const room = Object.values(Game.rooms)[0];
+    if (!room) return;
 
-    memory.initMemGame();
-    memory.clear();
-    // memory.incrementGlobalTick();
+    const roomCore = new RoomCore(room);
+
+    roomCore.memory.initMemGame();
+    roomCore.memory.clear();
+    // roomCore.memory.incrementGlobalTick();
 
     //! тут добавлять profit раз в 1сек за счет каждого спавна
 
-    // const room = Object.entries(Game.rooms)
-    // console.log(Object.entries(room[0][1]));
-    const newRoom = new RoomCore(Object.values(Game.rooms)[0]);
-    newRoom.test();
+    roomCore.run();
 
     // for (const name in Game.creeps) {
     //     const creep = Game.creeps[name];

@@ -14,7 +14,7 @@ interface Memory {
             };
         };
     };
-    flags: {
+    von: {
         initiatedMem: boolean;
     };
 }

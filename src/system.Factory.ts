@@ -13,8 +13,8 @@ const BODYPARTS_COST: Record<BodyPartConstant, number> = {
     ranged_attack: 150,
     heal: 250,
     claim: 600,
-    tough: 10
-}
+    tough: 10,
+};
 
 class FactorySystem {
     roomName: string;
@@ -22,9 +22,9 @@ class FactorySystem {
     spawns: StructureSpawn[];
     listTasks: ListTasksItem[];
 
-    constructor(roomName: string) {
+    constructor(roomName: string, memory: MemoryManager) {
         this.roomName = roomName;
-        this.memory = new MemoryManager(this.roomName);
+        this.memory = memory;
 
         this.spawns = Game.rooms[roomName].find(FIND_MY_SPAWNS);
         this.listTasks = this.memory.getFactoryTasks();
@@ -47,13 +47,12 @@ class FactorySystem {
                 const spawnIsActive = this.spawns[spawn].isActive();
 
                 if (response === OK && spawnIsActive) {
-                    const cost = creepBody.reduce((acc, part) => acc + BODYPARTS_COST[part], 0)
+                    const cost = creepBody.reduce((acc, part) => acc + BODYPARTS_COST[part], 0);
                     this.memory.addExpense(cost);
 
                     this.spawns[spawn].spawnCreep(creepBody, creepId, {
                         memory: { role: creepRole, home: this.roomName },
                     });
-
 
                     this.listTasks.splice(0, 1);
                 }
@@ -76,6 +75,20 @@ class FactorySystem {
         });
 
         this.listTasks.push(...processedTasks);
+    }
+
+    /**
+     * Убирает лишние задачи роли с хвоста очереди (синхрон с reqCreeps).
+     */
+    cancelTasks(role: TypeOrder, count: number) {
+        let remaining = count;
+
+        for (let i = this.listTasks.length - 1; i >= 0 && remaining > 0; i--) {
+            if (this.listTasks[i].name === role) {
+                this.listTasks.splice(i, 1);
+                remaining -= 1;
+            }
+        }
     }
 }
 

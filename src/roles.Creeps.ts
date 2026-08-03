@@ -39,9 +39,13 @@ const roles: RolesTypes = {
 
             //! написать логику, если не найден свободный storage
             if (storage) {
+                const amount = Math.min(
+                    creep.store.getUsedCapacity(RESOURCE_ENERGY),
+                    storage.store.getFreeCapacity(RESOURCE_ENERGY)
+                );
                 const transferResult = creep.transfer(storage, RESOURCE_ENERGY);
                 if (transferResult === OK) {
-                    memory.addProfit(creep.store.getUsedCapacity(RESOURCE_ENERGY));
+                    memory.addProfit(amount);
                 } else if (transferResult === ERR_NOT_IN_RANGE) {
                     creep.moveTo(storage);
                 }

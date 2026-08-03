@@ -10,12 +10,10 @@ class CheckUnitsSystem {
     aliveCreeps: Partial<Record<CreepRoles, number>> = {};
     expectedCreeps: Partial<Record<CreepRoles, number>> = {};
 
-    reqNum: number;
-
-    constructor(roomName: string, FactorySystem: FactorySystemType) {
+    constructor(roomName: string, FactorySystem: FactorySystemType, memory: MemoryManager) {
         this.factory = FactorySystem;
         this.roomName = roomName;
-        this.memory = new MemoryManager(this.roomName);
+        this.memory = memory;
 
         this.reqCreeps = this.memory.getRequiredCreeps(); // кол-во необходимых крипов
         this.aliveCreeps = {}; // живые крипы
@@ -23,50 +21,31 @@ class CheckUnitsSystem {
 
         this.defineAliveCreeps();
         this.defineExpectedCreeps();
-
-        //  количество необходимых крипов
-        this.reqNum = Object.values(this.reqCreeps).reduce((acc, cur) => acc + cur, 0);
     }
 
     run() {
-        const countCreeps = Object.keys(Game.creeps).length;
+        for (const role of Object.keys(this.reqCreeps) as CreepRoles[]) {
+            const alive = this.aliveCreeps[role] ?? 0;
+            const expected = this.expectedCreeps[role] ?? 0;
+            const lack = this.reqCreeps[role] - alive - expected;
 
-        if (countCreeps != this.reqNum) {
-            for (const role of Object.keys(this.reqCreeps) as CreepRoles[]) {
-                if (
-                    (this.aliveCreeps?.[role] ?? 0) + (this.expectedCreeps?.[role] ?? 0) <
-                    this.reqCreeps[role]
-                ) {
-                    // проверка есть ли живые крипы или ожидаемые поставки
-                    const isAliveCreeps = (this.aliveCreeps?.[role] ?? 0) !== 0;
-                    const isExpectedCreeps = (this.expectedCreeps?.[role] ?? 0) !== 0;
-
-                    let lackCreeps;
-                    if (isAliveCreeps && isExpectedCreeps) {
-                        lackCreeps =
-                            this.reqCreeps[role] -
-                            ((this.expectedCreeps[role] ?? 0) + (this.aliveCreeps[role] ?? 0));
-                    } else if (isAliveCreeps === true && isExpectedCreeps === false) {
-                        lackCreeps = this.reqCreeps[role] - (this.aliveCreeps[role] ?? 0);
-                    } else if (isAliveCreeps === false && isExpectedCreeps && true) {
-                        lackCreeps = this.reqCreeps[role] - (this.expectedCreeps[role] ?? 0);
-                    } else {
-                        lackCreeps = this.reqCreeps[role];
-                    }
-
-                    this.factory.createTask(Array.from({ length: lackCreeps }, () => role));
-                }
+            if (lack > 0) {
+                this.factory.createTask(Array.from({ length: lack }, () => role));
+            } else if (lack < 0) {
+                this.factory.cancelTasks(role, -lack);
             }
         }
     }
 
     /**
-     * Description - определяет объект живых крипов по ролям
+     * Description - определяет объект живых крипов по ролям (только home этой комнаты)
      */
     defineAliveCreeps() {
-        for (let name in Game.creeps) {
-            const role = Game.creeps[name].memory.role;
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            if (creep.memory.home !== this.roomName) continue;
 
+            const role = creep.memory.role;
             this.aliveCreeps[role] = (this.aliveCreeps[role] ?? 0) + 1;
         }
     }
@@ -77,7 +56,7 @@ class CheckUnitsSystem {
     defineExpectedCreeps() {
         const listTasks = this.memory.getFactoryTasks();
 
-        for (let order in listTasks) {
+        for (const order in listTasks) {
             const role = listTasks[order].name;
 
             this.expectedCreeps[role] = (this.expectedCreeps[role] ?? 0) + 1;

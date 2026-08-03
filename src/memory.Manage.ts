@@ -9,7 +9,7 @@ class MemoryManager {
 
     // --- INIT ---
     initMemGame() {
-        if (Memory.flags?.initiatedMem) return;
+        if (Memory.von?.initiatedMem) return;
 
         console.log('Инициализация памяти игры');
 
@@ -25,7 +25,7 @@ class MemoryManager {
             },
         };
 
-        Memory.flags.initiatedMem = true;
+        Memory.von = { initiatedMem: true };
     }
 
     initMemRoom(scannedData: ScannedData | undefined) {
@@ -36,7 +36,6 @@ class MemoryManager {
         // память для комнаты
         Memory.rooms[this.roomName] = {
             creepId: 0,
-            //! баг если поменять кол-во во время выполнения, то завод застрянет и перестанет выполнять список задач
             reqCreeps: {
                 harvester: scannedData?.TotalAvailableCells ?? 0,
                 builder: 1,

@@ -11,23 +11,19 @@ class CreepsSystem {
     creepsBuilder: Creep[];
     creepsUpgraders: Creep[];
 
-    constructor(roomName: string) {
+    constructor(roomName: string, memory: MemoryManager) {
         this.roomName = roomName;
-        this.memory = new MemoryManager(this.roomName);
+        this.memory = memory;
         this.spawns = Game.rooms[roomName].find(FIND_MY_SPAWNS);
 
-        this.creepsHarvester = Object.values(Game.creeps).filter(
-            (creep) => creep.memory.role === 'harvester'
+        const roomCreeps = Object.values(Game.creeps).filter(
+            (creep) => creep.memory.home === this.roomName
         );
-        this.creepsCarrier = Object.values(Game.creeps).filter(
-            (creep) => creep.memory.role === 'carrier'
-        );
-        this.creepsBuilder = Object.values(Game.creeps).filter(
-            (creep) => creep.memory.role === 'builder'
-        );
-        this.creepsUpgraders = Object.values(Game.creeps).filter(
-            (creep) => creep.memory.role === 'upgrader'
-        );
+
+        this.creepsHarvester = roomCreeps.filter((creep) => creep.memory.role === 'harvester');
+        this.creepsCarrier = roomCreeps.filter((creep) => creep.memory.role === 'carrier');
+        this.creepsBuilder = roomCreeps.filter((creep) => creep.memory.role === 'builder');
+        this.creepsUpgraders = roomCreeps.filter((creep) => creep.memory.role === 'upgrader');
     }
 
     run() {
@@ -50,7 +46,7 @@ class CreepsSystem {
                     creep.memory.target = closestSource.id;
                     this.memory.occupyEnergySources(closestSource.id);
                 }
-                
+
                 roles.harvester(creep, storage, releaseSource, this.memory);
             }
         }
@@ -101,7 +97,7 @@ class CreepsSystem {
                 //     ];
             }
 
-            roles.upgrader(creep, replenishment)
+            roles.upgrader(creep, replenishment);
         }
     }
 

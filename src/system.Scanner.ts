@@ -16,9 +16,9 @@ class ScannerSystem {
     roomName: string;
     memory: MemoryManager;
 
-    constructor(roomName: string) {
+    constructor(roomName: string, memory: MemoryManager) {
         this.roomName = roomName;
-        this.memory = new MemoryManager(this.roomName);
+        this.memory = memory;
     }
 
     scanEnergy(): ScannedData | undefined {
